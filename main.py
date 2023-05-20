@@ -97,6 +97,7 @@ Screen:
 
 class ColoredBoxLayout(BoxLayout):
     box_color = ListProperty([1, 1, 1, 1])
+    #added change
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
