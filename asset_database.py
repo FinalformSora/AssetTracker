@@ -64,6 +64,8 @@ class AssetDatabase:
     def close(self):
         # Don't forget to close the connection when you're done
         self.conn.close()
+        #yas
+
 
     def get_latest_assets(self, limit=10):
         self.cursor.execute("SELECT * FROM assets ORDER BY id DESC LIMIT ?", (limit,))
