@@ -1,0 +1,8 @@
+#Examples
+    #TopBar
+    https://kivymd.readthedocs.io/en/latest/components/toolbar/
+
+#install inorder
+python -m pip install --pre "kivy[base]" kivy_examples
+
+pip install kivymd
