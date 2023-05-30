@@ -3,12 +3,13 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.screenmanager import Screen
+from kivymd.uix.screen import MDScreen
 
 from asset import Asset
 from asset_database import AssetDatabase  # import the instance directly
 
 
-class CreateAssetPopup(Popup):
+class CreateAssetPopup(MDScreen):
     def __init__(self, **kwargs):
         super(CreateAssetPopup, self).__init__(**kwargs)
         self.title = "Create a new Asset"
