@@ -1,4 +1,5 @@
 import sqlite3
+import os
 from asset import Asset
 
 
@@ -16,30 +17,37 @@ class AssetDatabase:
                 description TEXT,
                 link TEXT,
                 image_path TEXT,
-                location TEXT
+                location TEXT,
+                image BLOB
             )
         """)
+        self.conn.commit()
 
     def get_assets(self):
-        self.cursor.execute("SELECT * FROM assets")
-        results = self.cursor.fetchall()
-        # Convert the results to Assets
-        assets = []
-        for result in results:
-            id, name, tags, description, link, image_path, location = result
-            tags = tags.split(',')  # Split the tags back into a list
-            asset = Asset(name, tags, description, link, image_path, location)
-            assets.append(asset)
-        return assets
+        cursor = self.conn.execute('SELECT * FROM assets')
+        return [Asset(*row) for row in cursor]
 
     def add_asset(self, asset):
-        tags_string = ",".join(asset.tags)  # convert list of tags to a comma-separated string
-        self.cursor.execute("""
-            INSERT INTO assets (name, tags, description, link, image_path, location) 
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, (asset.name, tags_string, asset.description, asset.link, asset.image_path,
-              asset.location))  # use tags_string instead of asset.tags
-        self.conn.commit()
+        # Try to load the image from the file
+        image_data = None
+        if asset.image_path and os.path.exists(asset.image_path):
+            with open(asset.image_path, 'rb') as f:
+                image_data = f.read()
+
+        # If image data could not be loaded from the file, use the image property
+        if not image_data and asset.image:
+            # Insert the asset data into the database
+            self.conn.execute('''
+                INSERT INTO assets (name, tags, description, link, image_path, location) 
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', (asset.name, ','.join(asset.tags), asset.description, asset.link, asset.image_path, asset.location))
+        else:
+            self.conn.execute('''
+                INSERT INTO assets (name, tags, description, link, image_path, location, image) 
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', (asset.name, ','.join(asset.tags), asset.description, asset.link, asset.image_path, asset.location,
+                  image_data))
+            self.conn.commit()
 
     def search_assets(self, query):
         self.cursor.execute("SELECT * FROM assets WHERE name LIKE ? OR tags LIKE ?",

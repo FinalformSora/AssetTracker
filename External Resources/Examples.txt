@@ -1,0 +1,12 @@
+#KV Code
+    #How to do MDCard with image
+        MDCard:
+            radius: 36
+            md_bg_color: "grey"
+            pos_hint: {"center_x": .5, "center_y": .5}
+            size_hint: .4, .8
+
+            FitImage:
+                source: "CodingProphet.png"
+                size_hint_y: .5
+                radius: 36, 36, 0, 0

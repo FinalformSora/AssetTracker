@@ -1,0 +1,16 @@
+#Examples
+    #TopBar
+    https://kivymd.readthedocs.io/en/latest/components/toolbar/
+
+#ToDO
+    1) Delete texts after creating asset in create asset page
+    2) Fix tags
+        Modify them as chips
+    3) Create MDCard for stored assets
+    4) see how to keep image sizes when creating asset
+    5) add edit page
+
+#install inorder
+python -m pip install --pre "kivy[base]" kivy_examples
+
+pip install kivymd
