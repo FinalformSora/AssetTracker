@@ -88,8 +88,7 @@ class CreateAssetScreen(MDScreen):
         image_path = self.image_path  # Correct this
         location = self.ids.location.text
 
-        new_asset = Asset(name, tags, description, link, image_path,
-                          location)  # Assuming your Asset constructor accepts these parameters
+        new_asset = Asset(name, tags, description, link, image_path, location)  # Assuming your Asset constructor accepts these parameters
         db = AssetDatabase()
         db.add_asset(new_asset)
 
