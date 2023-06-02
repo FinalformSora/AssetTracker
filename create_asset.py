@@ -8,6 +8,9 @@ from asset_database import AssetDatabase
 from kivy.uix.filechooser import FileChooserIconView
 from kivy.uix.popup import Popup
 from kivymd.uix.button import MDRaisedButton
+from kivymd.uix.dialog import MDDialog
+import os
+
 
 
 KV_Create_Asset = '''
@@ -74,26 +77,36 @@ class CreateAssetScreen(MDScreen):
     tags = ObjectProperty(None)
     description = ObjectProperty(None)
     link = ObjectProperty(None)
-    image_path = ObjectProperty(None)  # This is the correct property name for storing the image file path
+    image_path = ObjectProperty(None)
     location = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(CreateAssetScreen, self).__init__(**kwargs)
 
     def submit_asset(self):
+        location = None
         name = self.ids.name.text
         tags = [tag.strip() for tag in self.ids.tags.text.split(',')]
         description = self.ids.description.text
         link = self.ids.link.text
-        image_path = self.image_path  # Correct this
+        image_path = self.image_path
         location = self.ids.location.text
 
-        new_asset = Asset(name, tags, description, link, image_path,
-                          location)  # Assuming your Asset constructor accepts these parameters
+        # Validate input
+        if not all([name, tags, description, link, image_path, location]):
+            dialog = MDDialog(title="Input Error", text="All fields must be filled in.")
+            dialog.open()
+            return
+        if not os.path.exists(image_path):
+            dialog = MDDialog(title="File Error", text="Image file does not exist.")
+            dialog.open()
+            return
+
+        new_asset = Asset(id, name, tags, description, link, image_path, location)
         db = AssetDatabase()
         db.add_asset(new_asset)
 
-        self.manager.current = 'main'  # Go back to main screen
+        self.manager.current = 'main'
 
     def open_file_chooser(self):
         filechooser = FileChooserIconView(multiselect=False, dirselect=False)
@@ -102,26 +115,25 @@ class CreateAssetScreen(MDScreen):
         popup.open()
 
     def set_image_path(self, selection, popup):
-        print("Selected", selection)
         if selection:
             self.image_path = selection[0]
             self.ids.image_button.text = "Image Selected"
             self.ids.image_label.text = f"Selected Image: {self.image_path}"
-            popup.dismiss()  # dismiss the popup
+            popup.dismiss()
 
     def go_to_main_screen(self, *args):
-        self.manager.current = 'main'  # Go back to main screen
+        self.manager.current = 'main'
 
 
 class MainScreen(Screen):
-    pass  # No extra initialization is needed here
+    pass
 
 
-class AssetManagerApp(App):  # The main application class
+class AssetManagerApp(App):
     def build(self):
         sm = ScreenManager()
         self.root = sm
-        sm.add_widget(MainScreen(name='main'))  # Set the name attribute to switch between screens
+        sm.add_widget(MainScreen(name='main'))
         sm.add_widget(CreateAssetScreen(name='create'))
         return sm
 

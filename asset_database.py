@@ -37,15 +37,15 @@ class AssetDatabase:
         # If image data could not be loaded from the file, use the image property
         if not image_data and asset.image:
             # Insert the asset data into the database
-            self.conn.execute('''
+            self.conn.execute("""
                 INSERT INTO assets (name, tags, description, link, image_path, location) 
                 VALUES (?, ?, ?, ?, ?, ?)
-            ''', (asset.name, ','.join(asset.tags), asset.description, asset.link, asset.image_path, asset.location))
+            """, (asset.name, ','.join(asset.tags), asset.description, asset.link, asset.image_path, asset.location))
         else:
-            self.conn.execute('''
+            self.conn.execute("""
                 INSERT INTO assets (name, tags, description, link, image_path, location, image) 
                 VALUES (?, ?, ?, ?, ?, ?, ?)
-            ''', (asset.name, ','.join(asset.tags), asset.description, asset.link, asset.image_path, asset.location,
+            """, (asset.name, ','.join(asset.tags), asset.description, asset.link, asset.image_path, asset.location,
                   image_data))
             self.conn.commit()
 

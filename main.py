@@ -25,6 +25,13 @@ from kivymd.app import MDApp
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.card import MDCard
 from kivy.uix.image import Image
+from kivymd.uix.fitimage import FitImage
+import os
+from PIL import Image as PilImage
+import io
+import tempfile
+import uuid
+
 
 KV_func = '''
 <MainScreen>:
@@ -59,7 +66,9 @@ KV_func = '''
 '''
 Builder.load_string(KV_func)
 
+
 # KV way MDcard with Image
+
 
 class MainScreen(Screen):
     def on_kv_post(self, base_widget):
@@ -92,8 +101,14 @@ class AssetCard(MDCard):
         self.size = "280dp", "280dp"
         self.pos_hint = {"center_x": .5}
 
+        # Check if the asset image file exists, if not, create a new one from BLOB data
+        if os.path.isfile(asset.image_path):
+            asset_image_file_path = asset.image_path
+        else:
+            asset_image_file_path = self.save_blob_to_file(asset.image)
+
         # Add asset image to the card
-        asset_image = FitImage(source=asset.image_path, size_hint_y=.99,radius= (36, 36, 0, 0))
+        asset_image = FitImage(source=asset_image_file_path, size_hint_y= .35)
         self.add_widget(asset_image)
 
         # Add asset information to card
@@ -113,6 +128,20 @@ class AssetCard(MDCard):
             text="Location: " + asset.location,
             theme_text_color="Secondary",
         ))
+
+
+    def save_blob_to_file(self, blob_data):
+        """Save BLOB byte data as an image file in a temporary directory, return the file path."""
+
+        # Convert bytes to PIL Image object
+        pil_image = PilImage.open(io.BytesIO(blob_data))
+
+        # Save the PIL Image object to a file in a temporary directory
+        file_path = os.path.join(tempfile.gettempdir(), f"{uuid.uuid4().hex}.png")
+        pil_image.save(file_path)
+
+        # Return the path to the newly created file
+        return file_path
 
 
 class NewMain(MDApp):
