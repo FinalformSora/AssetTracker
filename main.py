@@ -2,11 +2,13 @@ from kivy.metrics import dp
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.scrollview import ScrollView
+from kivy.properties import ListProperty, ObjectProperty
+from kivy.lang import Builder
 from kivy.core.window import Window
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.graphics import RoundedRectangle, Color
-from kivy.properties import ListProperty, ObjectProperty
+
 from kivymd.app import MDApp
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDRectangleFlatButton, MDFlatButton, MDFloatingActionButton
@@ -14,24 +16,24 @@ from kivymd.uix.fitimage import FitImage
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.label import MDLabel
 from kivymd.uix.toolbar import MDTopAppBar
+from kivymd.uix.list import MDList, ThreeLineListItem, ThreeLineIconListItem
+from kivymd.uix.navigationdrawer import MDNavigationDrawer
+from kivymd.uix.menu import MDDropdownMenu
+from kivymd.uix.card import MDCard
+from kivymd.uix.gridlayout import MDGridLayout
+from kivymd.uix.fitimage import FitImage
+from kivymd.theming import ThemableBehavior
+
+# from asset_detail import AssetDetailScreen
 from create_asset import CreateAssetScreen
 from search_screen import SearchScreen
 from asset_database import AssetDatabase
-from kivymd.uix.list import MDList, ThreeLineListItem, ThreeLineIconListItem
-from kivy.lang import Builder
-from kivymd.uix.navigationdrawer import MDNavigationDrawer
-from kivymd.theming import ThemableBehavior
-from kivymd.app import MDApp
-from kivymd.uix.menu import MDDropdownMenu
-from kivymd.uix.card import MDCard
-from kivy.uix.image import Image
-from kivymd.uix.fitimage import FitImage
+
 import os
 from PIL import Image as PilImage
 import io
 import tempfile
 import uuid
-
 
 KV_func = '''
 <MainScreen>:
@@ -55,6 +57,18 @@ KV_func = '''
     
     MDScrollView:
         pos_hint: {"top": .89}
+        BoxLayout:  # or FloatLayout, etc...
+            orientation: 'vertical'  # Important to make it vertical scroll
+            size_hint_y: None
+            height: self.minimum_height  # Very important for scrolling
+            MDGridLayout:
+                id: card_layout
+                cols: 2  # Adjust this to the number of cards you want in each row.
+                spacing: dp(5)  # Set spacing explicitly
+                row_default_height: (self.width - 2 * dp(100)) / self.cols
+                row_force_default: True
+                size_hint_y: None
+                height: self.minimum_height
 
 
 
@@ -80,13 +94,13 @@ class MainScreen(Screen):
             )
         )
 
+    def on_enter(self, *args):
         # Get Recent Assets
         db = AssetDatabase()
         assets = db.get_assets()
-
         for asset in assets:
             asset_card = AssetCard(asset)
-            self.add_widget(asset_card)
+            self.ids.card_layout.add_widget(asset_card)
 
 
 class ContentNavigationDrawer(BoxLayout):
@@ -108,7 +122,7 @@ class AssetCard(MDCard):
             asset_image_file_path = self.save_blob_to_file(asset.image)
 
         # Add asset image to the card
-        asset_image = FitImage(source=asset_image_file_path, size_hint_y= .35)
+        asset_image = FitImage(source=asset_image_file_path, size_hint_y=.35)
         self.add_widget(asset_image)
 
         # Add asset information to card
@@ -128,7 +142,6 @@ class AssetCard(MDCard):
             text="Location: " + asset.location,
             theme_text_color="Secondary",
         ))
-
 
     def save_blob_to_file(self, blob_data):
         """Save BLOB byte data as an image file in a temporary directory, return the file path."""
@@ -154,6 +167,8 @@ class NewMain(MDApp):
         create_asset_screen = CreateAssetScreen(name='create_asset')
         sm.add_widget(main_screen)
         sm.add_widget(create_asset_screen)
+        #        sm.add_widget(AssetDetailScreen(name='asset_detail'))  # add this line
+
         return sm
 
 
